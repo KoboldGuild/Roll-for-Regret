@@ -2,22 +2,6 @@
 
 A completely static, browser-based D&D character concept generator, ready to host using **GitHub Pages**. No backend, packages, API keys, Node.js installation or build process required.
 
-## Publish on GitHub Pages
-
-1. Sign in to [GitHub](https://github.com/) and select **New repository**.
-2. Name it `roll-for-regret` (or anything you like), and make it **Public**.
-3. Select **Add file → Upload files**. Upload **the contents of this folder**, keeping the `css` and `js` folders intact. You must upload `index.html` at the **top level** of the repository, not inside another folder. Commit the files to `main`.
-4. Open the repository's **Settings → Pages**.
-5. Under **Build and deployment**, choose **Deploy from a branch**. Select `main` and `/ (root)`, then **Save**.
-6. When GitHub Pages reports the site as published, visit `https://YOUR-USERNAME.github.io/roll-for-regret/` (replace the username and repository name as needed).
-
-**Do not upload the ZIP itself to GitHub and expect it to act as a website.** Extract the ZIP first and upload the files and folders inside it.
-
-If your repository is named `YOUR-USERNAME.github.io`, your homepage will be at `https://YOUR-USERNAME.github.io/` instead.
-
-## Use locally
-
-Double-click `index.html` to open it in a modern browser. All generator functions work without an internet connection.
 
 ## Files
 
