@@ -1,6 +1,6 @@
 # Roll for Regret — The Kobold Guild
 
-A completely static, browser-based D&D character concept generator, ready to host using **GitHub Pages**. No backend, packages, API keys, Node.js installation or build process required.
+A completely static, browser-based D&D character concept generator. No backend, packages, API keys, Node.js installation or build process required.
 
 
 ## Character creator features
