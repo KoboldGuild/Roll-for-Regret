@@ -33,7 +33,6 @@ Official source references (names only, not reproduced game rules):
 
 ## Customise
 
-- Edit name lists and random choices near the top of `js/script.js`. Class-specific options live in the `subclasses` object. Add a new class to `tables.className` and give it an entry in `subclasses` to expand the lists.
 - Change the appearance in `css/style.css`.
 - Edit page text and headings in `index.html`.
 
