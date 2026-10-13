@@ -191,7 +191,7 @@ button:active { transform: translateY(0); }
         <button class="ghost" id="print" type="button">Print</button>
       </div>
       <label class="adult-option">
-        <input type="checkbox" id="adultToggle"> Show optional 18+ anatomy roll
+        <input type="checkbox" id="adultToggle"> Show optional 18+ anatomy rolls
       </label>
     </header>
 
@@ -577,7 +577,7 @@ const SUBCLASSES = {
   ]
 };
 
-// SECTION 4: OTHER ROLL TABLES. Add/remove a quoted line as required.
+// SECTION 4: OTHER ROLL TABLES (including EU cups). Add/remove a quoted line as required.
 const CHOICES = {
   // Species
   "Species": [
@@ -692,6 +692,27 @@ const CHOICES = {
     "Anything I want"
   ],
 
+  // EU breast cup sizes (letters only, with no band measurement).
+  // This is an optional adult character trait, independent of gender.
+  // Add/remove quoted entries to customise the roll pool.
+  "Breast Cup Size (EU)": [
+    "AA",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N"
+  ],
+
   // Background
   "Background": [
     "Acolyte",
@@ -751,7 +772,8 @@ const TABLES = {
   Personality: CHOICES.Personality,
   'Body Shape': CHOICES['Body Shape'],
   Gender: CHOICES.Gender,
-  Sexuality: CHOICES.Sexuality
+  Sexuality: CHOICES.Sexuality,
+  "Breast Cup Size (EU)": CHOICES["Breast Cup Size (EU)"]
 };
 
 const STATS = [
@@ -780,7 +802,13 @@ const FIELDS = [
   'Gender',
   'Sexuality',
   'Omegaverse',
-  'Schlong Size'
+  'Schlong Size',
+  'Breast Cup Size (EU)'
+];
+
+const ADULT_FIELDS = [
+  'Schlong Size',
+  'Breast Cup Size (EU)'
 ];
 
 const state = {};
@@ -912,7 +940,7 @@ function rollEverything() {
       if (locks.has('Class')) rollField('Subclass');
       continue;
     }
-    if (field === 'Schlong Size' && !showAdult) continue;
+    if (ADULT_FIELDS.includes(field) && !showAdult) continue;
     rollField(field);
   }
   notify('The dice have spoken!');
@@ -956,7 +984,7 @@ function createRow(field, container) {
 }
 
 function fieldsForExport() {
-  return FIELDS.filter(field => showAdult || field !== 'Schlong Size');
+  return FIELDS.filter(field => showAdult || !ADULT_FIELDS.includes(field));
 }
 
 function characterText() {
@@ -1008,13 +1036,17 @@ function start() {
   byId('print').addEventListener('click', () => window.print());
   byId('adultToggle').addEventListener('change', event => {
     showAdult = event.target.checked;
-    document.querySelector('[data-row="Schlong Size"]')
-      .classList.toggle('hidden', !showAdult);
-    if (showAdult && state['Schlong Size'] === undefined) {
-      rollField('Schlong Size');
+    for (const field of ADULT_FIELDS) {
+      document.querySelector(`[data-row="${field}"]`)
+        .classList.toggle('hidden', !showAdult);
+      if (showAdult && state[field] === undefined) {
+        rollField(field);
+      }
     }
   });
-  document.querySelector('[data-row="Schlong Size"]').classList.add('hidden');
+  for (const field of ADULT_FIELDS) {
+    document.querySelector(`[data-row="${field}"]`).classList.add('hidden');
+  }
   rollEverything();
 }
 
