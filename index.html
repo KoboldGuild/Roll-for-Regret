@@ -1,113 +1,1024 @@
-<!DOCTYPE html>
-<html lang="en-GB">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A delightfully chaotic, fully offline D&D character concept generator with 3d6 ability scores and rerollable details.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Roll for Regret | The Kobold Guild</title>
-  <link rel="stylesheet" href="css/style.css">
+
+  <!-- 1. PAGE STYLES: customise the colours in :root below. -->
+  <style>
+/* The Kobold Guild colour palette. Edit these values to recolour the page. */
+:root {
+  --ink: #073f37;
+  --green: #005244;
+  --mint: #41bea6;
+  --cream: #efefdc;
+  --magenta: #aa1b87;
+  --paper: #fffdf4;
+  --line: rgba(0, 82, 68, 0.28);
+  --shadow: 0 12px 30px rgba(0, 82, 68, 0.10);
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.page {
+  width: min(880px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 42px 0 56px;
+}
+.hero { text-align: center; margin-bottom: 28px; }
+.badge {
+  width: 82px;
+  height: 82px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--cream);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  border: 4px solid var(--mint);
+  box-shadow: var(--shadow);
+}
+h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 4.4rem);
+  line-height: 0.94;
+  color: var(--green);
+}
+.subtitle {
+  max-width: 640px;
+  margin: 14px auto 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.82;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 24px 0 22px;
+}
+button {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 120ms ease, opacity 120ms ease, box-shadow 120ms ease;
+}
+button:hover { transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+.primary {
+  background: var(--magenta);
+  color: white;
+  box-shadow: 0 8px 20px rgba(170, 27, 135, 0.22);
+}
+.secondary { background: var(--green); color: var(--cream); }
+.ghost { background: transparent; color: var(--green); border: 2px solid var(--green); }
+.generator { display: grid; gap: 10px; }
+.row {
+  display: grid;
+  grid-template-columns: minmax(145px, 205px) minmax(0, 1fr) 46px 46px;
+  align-items: stretch;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: 0 4px 14px rgba(0, 82, 68, 0.045);
+}
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 15px 16px;
+  background: var(--mint);
+  color: var(--green);
+  font: inherit;
+  font-weight: 900;
+  line-height: 1.15;
+}
+.value {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  min-width: 0;
+  padding: 10px 16px;
+  line-height: 1.35;
+  color: #183f38;
+}
+.value select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+.icon-btn {
+  width: 100%;
+  height: 100%;
+  min-height: 56px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 0;
+  background: rgba(65, 190, 166, 0.10);
+  color: var(--green);
+  font-size: 1rem;
+  border-left: 1px solid rgba(0, 82, 68, 0.12);
+}
+.icon-btn:hover { background: rgba(65, 190, 166, 0.22); }
+.icon-btn.locked { background: var(--green); color: var(--cream); }
+.adult-option { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+.adult-option input { accent-color: var(--magenta); width: 18px; height: 18px; }
+.note { text-align: center; font-size: 0.86rem; opacity: 0.7; margin: 20px 0 0; }
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--green);
+  color: var(--cream);
+  font-weight: 800;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  z-index: 50;
+}
+.toast.show { opacity: 1; }
+.hidden { display: none !important; }
+@media (max-width: 680px) {
+  .page { width: min(100% - 14px, 880px); padding-top: 26px; }
+  .row { grid-template-columns: minmax(96px, 118px) minmax(0, 1fr) 38px 38px; }
+  .label { padding: 10px; font-size: 0.82rem; }
+  .value { min-height: 54px; padding: 10px; font-size: 0.88rem; overflow-wrap: anywhere; }
+  .icon-btn { min-height: 54px; font-size: 0.9rem; }
+}
+@media print {
+  .controls, .icon-btn, .note, .adult-option { display: none !important; }
+  .page { padding: 0; }
+  .row { break-inside: avoid; grid-template-columns: 180px minmax(0, 1fr); }
+}
+  </style>
 </head>
 <body>
-<main class="container">
-  <div class="topbar">
-    <div class="brand"><span class="brand-mark" aria-hidden="true">⚄</span> The Kobold Guild <span style="color:#849285">/ Character Lab</span></div>
-    <div class="top-note">A character concept generator • Runs offline</div>
-  </div>
+  <main class="page">
+    <header class="hero">
+      <div class="badge">D20</div>
+      <h1>Roll for Regret</h1>
+      <p class="subtitle">The Kobold Guild's deeply questionable D&amp;D character generator.
+        Reroll individual results and lock anything you want to keep.</p>
 
-  <header class="hero">
-    <div class="eyebrow">The highly questionable character creator</div>
-    <h1>Roll for Regret.</h1>
-    <p>Brave heroes. Absolute disasters. A suspicious number of people called Dave. Roll an entire D&amp;D character concept, or keep just the bits that made you laugh.</p>
-    <div class="hero-bottom">
-      <div class="pillars"><span>100 first names</span><span>100 surnames</span><span>3d6 ability scores</span></div>
-      <div class="action-bar"><button class="btn btn-primary" id="roll-all" type="button">✦ Roll a new character</button></div>
-    </div>
-  </header>
+      <div class="controls">
+        <button class="primary" id="rollAll" type="button">🎲 Roll Everything</button>
+        <button class="secondary" id="copy" type="button">Copy Character</button>
+        <button class="secondary" id="download" type="button">Save JSON</button>
+        <button class="ghost" id="print" type="button">Print</button>
+      </div>
+      <label class="adult-option">
+        <input type="checkbox" id="adultToggle"> Show optional 18+ anatomy roll
+      </label>
+    </header>
 
-  <section class="summary" aria-live="polite">
-    <div>
-      <div class="summary-label">Your latest questionable adventurer</div>
-      <h2 id="summary-name">Rolling...</h2>
-      <p id="summary-description">The dice have opinions.</p>
-    </div>
-    <div class="summary-symbol" aria-hidden="true">⚔</div>
-  </section>
+    <section class="generator" id="generator" aria-label="Character traits"></section>
+    <p class="note">2024 Player's Handbook subclasses, plus updated Artificer options.
+      Ability scores display the final 3d6 total only.</p>
+  </main>
 
-  <div class="layout">
-    <div class="stack">
-      <section class="panel" aria-labelledby="stats-title">
-        <div class="section-top">
-          <div><h2 id="stats-title">Ability scores</h2><p>Roll three six-sided dice and add them. No mercy, no rerolling the lowest.</p></div>
-          <button class="btn btn-subtle" id="roll-stats" type="button" title="Reroll all six ability scores">↻ All six</button>
-        </div>
-        <div class="stat-grid" id="stat-grid">
-          <!-- Filled by JavaScript -->
-        </div>
-        <div class="mini-key">Scores range from 3–18. Modifiers use the standard D&amp;D formula: floor((score − 10) ÷ 2).</div>
-      </section>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-      <section class="panel" aria-labelledby="identity-title">
-        <div class="section-top"><div><h2 id="identity-title">Who is this menace?</h2><p>Names can be typed over. Other options can be chosen manually.</p></div></div>
-        <div class="field-grid">
-          <div class="field"><div class="field-head"><label class="field-label" for="v-firstName">First name</label><button class="roll-field" data-roll="firstName" title="Reroll first name" aria-label="Reroll first name">↻</button></div><input class="field-input" id="v-firstName" maxlength="60" autocomplete="off"></div>
-          <div class="field"><div class="field-head"><label class="field-label" for="v-lastName">Surname</label><button class="roll-field" data-roll="lastName" title="Reroll surname" aria-label="Reroll surname">↻</button></div><input class="field-input" id="v-lastName" maxlength="60" autocomplete="off"></div>
-          <div class="field"><div class="field-head"><label class="field-label" for="v-species">Species</label><button class="roll-field" data-roll="species" aria-label="Reroll species" title="Reroll species">↻</button></div><select class="field-select" id="v-species"></select></div>
-          <div class="field"><div class="field-head"><span class="field-label">Height</span><button class="roll-field" data-roll="height" aria-label="Reroll height" title="Reroll height">↻</button></div><div class="field-value" id="v-height">–</div></div>
-          <div class="field"><div class="field-head"><label class="field-label" for="v-body">Body shape</label><button class="roll-field" data-roll="body" aria-label="Reroll body shape" title="Reroll body shape">↻</button></div><select class="field-select" id="v-body"></select></div>
-          <div class="field"><div class="field-head"><label class="field-label" for="v-gender">Gender</label><button class="roll-field" data-roll="gender" aria-label="Reroll gender" title="Reroll gender">↻</button></div><select class="field-select" id="v-gender"></select></div>
-          <div class="field wide"><div class="field-head"><label class="field-label" for="v-sexuality">Sexuality</label><button class="roll-field" data-roll="sexuality" aria-label="Reroll sexuality" title="Reroll sexuality">↻</button></div><select class="field-select" id="v-sexuality"></select></div>
-        </div>
-      </section>
-    </div>
+  <!-- 2. EASY-TO-EDIT ROLL TABLES: look at the TOP of this script. -->
+  <script>
+'use strict';
 
-    <div class="stack">
-      <section class="panel" aria-labelledby="adventure-title">
-        <div class="section-top"><div><h2 id="adventure-title">The adventuring bit</h2><p>Qualifications optional. Terrible decisions guaranteed. Subclass rolls always match the class.</p></div></div>
-        <div class="field-grid">
-          <div class="field"><div class="field-head"><label class="field-label" for="v-className">Class</label><button class="roll-field" data-roll="className" title="Reroll class" aria-label="Reroll class">↻</button></div><select class="field-select" id="v-className"></select></div>
-          <div class="field"><div class="field-head"><label class="field-label" for="v-subclass">Subclass</label><button class="roll-field" data-roll="subclass" title="Reroll subclass only" aria-label="Reroll subclass only">↻</button></div><select class="field-select" id="v-subclass"></select></div>
-          <p class="subclass-source" id="subclass-source" aria-live="polite">2024 class options, including the updated Artificer.</p>
-          <div class="field"><div class="field-head"><label class="field-label" for="v-background">Background</label><button class="roll-field" data-roll="background" title="Reroll background" aria-label="Reroll background">↻</button></div><select class="field-select" id="v-background"></select></div>
-          <div class="field"><div class="field-head"><label class="field-label" for="v-weapon">Favourite weapon</label><button class="roll-field" data-roll="weapon" title="Reroll weapon" aria-label="Reroll weapon">↻</button></div><select class="field-select" id="v-weapon"></select></div>
-          <div class="field"><div class="field-head"><label class="field-label" for="v-armour">Armour</label><button class="roll-field" data-roll="armour" title="Reroll armour" aria-label="Reroll armour">↻</button></div><select class="field-select" id="v-armour"></select></div>
-          <div class="field wide"><div class="field-head"><label class="field-label" for="v-personality">Personality trait</label><button class="roll-field" data-roll="personality" title="Reroll personality trait" aria-label="Reroll personality trait">↻</button></div><select class="field-select" id="v-personality"></select></div>
-          <div class="field wide"><div class="field-head"><label class="field-label" for="v-motivation">Reason for adventuring</label><button class="roll-field" data-roll="motivation" title="Reroll adventuring motive" aria-label="Reroll adventuring motive">↻</button></div><select class="field-select" id="v-motivation"></select></div>
-        </div>
-      </section>
+/* ╔══════════════════════════════════════════════════════════════════════╗
+   ║               ✏️ EDIT YOUR ROLL TABLES BELOW                        ║
+   ║ Add a new option on its own line, with quotation marks and a comma. ║
+   ║ Example:  "Bogglesworth",                                            ║
+   ║ You can change, remove or add as many entries as you like.           ║
+   ║ The rolling code starts much further down. No need to edit it.      ║
+   ╚══════════════════════════════════════════════════════════════════════╝ */
 
-      <section class="panel omega-panel" aria-labelledby="omega-title">
-        <div class="section-top"><div><h2 id="omega-title">Omegaverse (optional lore)</h2><p>A separate 1–100 weighted roll, not tied to gender or sexuality.</p></div><button class="roll-field" data-roll="designation" title="Reroll designation" aria-label="Reroll Omegaverse designation">↻</button></div>
-        <div class="omega-roll" id="v-designation" aria-live="polite">–</div>
-        <div class="small-note" id="designation-detail">Rolled on d100</div>
-        <div class="odds" role="img" aria-label="30 percent Alpha, 60 percent Beta, 10 percent Omega"><span></span><span></span><span></span></div>
-        <div class="odds-legend"><span>Alpha 30%</span><span>Beta 60%</span><span>Omega 10%</span></div>
-        <p class="mini-key">Alpha: 15% dominant, 15% recessive. Omega: 5% dominant, 5% recessive. Beta: 60%.</p>
-      </section>
+// SECTION 1: FIRST NAMES. All groups combine into ONE evenly rolled list.
+// To add a new group, add:  NewGroup: ["Name", "Another Name"],
+const FIRST_NAMES = {
+  // Mundane
+  "Mundane": [
+    "Dave",
+    "Bob",
+    "Sandra",
+    "Karen",
+    "Doris",
+    "John",
+    "Jane",
+    "Steve",
+    "Linda",
+    "Gary",
+    "Barry",
+    "Sharon",
+    "Susan",
+    "Kevin",
+    "Nigel",
+    "Keith",
+    "Brian",
+    "Brenda",
+    "Margaret",
+    "Patricia",
+    "Barbara",
+    "Janet",
+    "Carol",
+    "Julie",
+    "Angela",
+    "Tracy",
+    "Wendy",
+    "Debbie",
+    "Colin",
+    "Trevor",
+    "Terry",
+    "Graham",
+    "Alan",
+    "Peter",
+    "Paul",
+    "Mark",
+    "Luke",
+    "Simon",
+    "James",
+    "Richard"
+  ],
 
-      <section class="panel" aria-labelledby="extras-title">
-        <div class="section-top"><div><h2 id="extras-title">Mature nonsense</h2><p>Optional 18+ anatomy humour. Hidden from the page and exports unless enabled.</p></div></div>
-        <label class="toggle"><input type="checkbox" id="mature-toggle"><span>Enable the NSFW roll</span></label>
-        <div class="mature" id="mature-area" hidden>
-          <div class="field-head"><span class="field-label">Schlong size • 1–13 inches</span><button class="roll-field" data-roll="schlong" title="Reroll anatomy" aria-label="Reroll anatomy">↻</button></div>
-          <div class="field-value" id="v-schlong">–</div>
-          <p class="mini-key" style="margin:5px 0 0">A completely independent novelty roll, regardless of gender or species.</p>
-        </div>
-      </section>
-    </div>
-  </div>
+  // Elven
+  "Elven": [
+    "Aelith",
+    "Faelar",
+    "Thalindra",
+    "Elarion",
+    "Lirael",
+    "Vaelis",
+    "Sylvara",
+    "Caelith",
+    "Aerandir",
+    "Nimriel",
+    "Ilyana",
+    "Eryndor",
+    "Astrael",
+    "Lethariel",
+    "Myrielle",
+    "Elowen",
+    "Thaelis",
+    "Vaelora",
+    "Fenrith",
+    "Syllin"
+  ],
 
-  <div class="foot-actions">
-    <div class="action-bar">
-      <button class="btn btn-primary" id="roll-bottom" type="button">↻ Reroll everything</button>
-      <button class="btn btn-outline" id="copy-character" type="button">⧉ Copy character</button>
-      <button class="btn btn-outline" id="save-json" type="button">↓ Save JSON</button>
-      <button class="btn btn-outline" id="print-character" type="button">▤ Print</button>
-    </div>
-    <div class="foot-note">A character concept generator, not a full 5e rules-legal character sheet. Stats are straight 3d6; class and subclass are linked, while species and equipment are rolled independently. Subclass names: <a href="https://www.dndbeyond.com/posts/1810-updates-in-the-players-handbook-2024" target="_blank" rel="noopener noreferrer">2024 Player's Handbook</a> and <a href="https://www.dndbeyond.com/posts/2106-whats-new-with-the-artificer-in-eberron-forge-of" target="_blank" rel="noopener noreferrer">revised Artificer (2025)</a>.</div>
-  </div>
-  <div class="footer">Made for questionable heroes and memorable NPCs. The Kobold Guild ✦ All dice, no dignity.</div>
-</main>
-<div id="toast" role="status" aria-live="polite"></div>
-<script src="js/script.js" defer></script>
+  // Dwarven
+  "Dwarven": [
+    "Bromli",
+    "Thrain",
+    "Durnik",
+    "Hilda",
+    "Brunna",
+    "Korga",
+    "Baldric",
+    "Gimra",
+    "Torvald",
+    "Rurik",
+    "Borin",
+    "Dagna",
+    "Grundi",
+    "Helga",
+    "Hrothgar",
+    "Kelda",
+    "Morgran",
+    "Durnella"
+  ],
+
+  // Draconic
+  "Draconic": [
+    "Vraxis",
+    "Sarynth",
+    "Khazrith",
+    "Zyrakor",
+    "Tharvax",
+    "Vezrath",
+    "Ryzzara",
+    "Draxion",
+    "Zenthra",
+    "Vorath",
+    "Xaryx",
+    "Rhazira",
+    "Kyrzath",
+    "Azryx"
+  ],
+
+  // Ridiculous
+  "Ridiculous": [
+    "Bang",
+    "Bark",
+    "Twork",
+    "Bonk",
+    "Clunk",
+    "Thud",
+    "Squelch",
+    "Boggle"
+  ]
+};
+
+// SECTION 2: SURNAMES. All groups combine into ONE evenly rolled list.
+const LAST_NAMES = {
+  // Everyday & Trades
+  "Everyday & Trades": [
+    "Smith",
+    "Jones",
+    "Brown",
+    "Taylor",
+    "Baker",
+    "Miller",
+    "Cooper",
+    "Fletcher",
+    "Thatcher",
+    "Weaver",
+    "Carpenter",
+    "Mason",
+    "Potter",
+    "Brewer",
+    "Tanner",
+    "Hunter",
+    "Fisher",
+    "Farmer",
+    "Shepherd",
+    "Carter",
+    "Cook",
+    "Turner",
+    "Wright",
+    "Clark",
+    "Walker",
+    "Wood",
+    "Stone",
+    "Hill",
+    "Rivers",
+    "Brooks",
+    "Ford",
+    "Marsh",
+    "Field",
+    "Green",
+    "White",
+    "Black",
+    "Grey",
+    "Reed",
+    "Bell",
+    "Knight"
+  ],
+
+  // Noble Houses
+  "Noble Houses": [
+    "King",
+    "Queen",
+    "Prince",
+    "Duke",
+    "Baron",
+    "Earl",
+    "Sterling",
+    "Goldheart"
+  ],
+
+  // Dwarven & Forged
+  "Dwarven & Forged": [
+    "Silverhand",
+    "Ironfist",
+    "Steelborn",
+    "Hammerfall",
+    "Anvilson",
+    "Forgefire",
+    "Oakenshield"
+  ],
+
+  // Elven & Fey
+  "Elven & Fey": [
+    "Thornwood",
+    "Ashgrove",
+    "Willowmere",
+    "Moonwhisper",
+    "Starfall",
+    "Sunstrider",
+    "Nightbloom",
+    "Dawnbringer",
+    "Silverleaf",
+    "Brightwater",
+    "Mistwalker",
+    "Windrunner",
+    "Shadowbrook",
+    "Elderbranch",
+    "Fernsong",
+    "Mossfoot"
+  ],
+
+  // Dwarven & Halfling
+  "Dwarven & Halfling": [
+    "Deepdelver",
+    "Rockseeker",
+    "Stonebeard",
+    "Copperkettle",
+    "Underhill",
+    "Goodbarrel",
+    "Bramblewick",
+    "Puddlefoot",
+    "Bumblebrook",
+    "Tumbleton"
+  ],
+
+  // Silly
+  "Silly": [
+    "Pickleworth",
+    "Wobblebottom",
+    "Noodleman",
+    "Crumblecake",
+    "Butterworth",
+    "Cheesewick"
+  ],
+
+  // Draconic & Dark
+  "Draconic & Dark": [
+    "Dragonbane",
+    "Dragonscale",
+    "Flameheart",
+    "Emberwing",
+    "Stormclaw",
+    "Frostfang",
+    "Ashenfang",
+    "Wyrmwood",
+    "Fireborn",
+    "Bloodscale",
+    "Blackthorn",
+    "Ravencrest",
+    "Duskbane"
+  ]
+};
+
+// SECTION 3: CLASS / SUBCLASS PAIRS. Edit subclasses underneath their class.
+const SUBCLASSES = {
+  // Barbarian
+  "Barbarian": [
+    "Path of the Berserker",
+    "Path of the Wild Heart",
+    "Path of the World Tree",
+    "Path of the Zealot"
+  ],
+
+  // Bard
+  "Bard": [
+    "College of Dance",
+    "College of Glamour",
+    "College of Lore",
+    "College of Valor"
+  ],
+
+  // Cleric
+  "Cleric": [
+    "Life Domain",
+    "Light Domain",
+    "Trickery Domain",
+    "War Domain"
+  ],
+
+  // Druid
+  "Druid": [
+    "Circle of the Land",
+    "Circle of the Moon",
+    "Circle of the Sea",
+    "Circle of the Stars"
+  ],
+
+  // Fighter
+  "Fighter": [
+    "Battle Master",
+    "Champion",
+    "Eldritch Knight",
+    "Psi Warrior"
+  ],
+
+  // Monk
+  "Monk": [
+    "Warrior of Mercy",
+    "Warrior of Shadow",
+    "Warrior of the Elements",
+    "Warrior of the Open Hand"
+  ],
+
+  // Paladin
+  "Paladin": [
+    "Oath of Devotion",
+    "Oath of Glory",
+    "Oath of the Ancients",
+    "Oath of Vengeance"
+  ],
+
+  // Ranger
+  "Ranger": [
+    "Beast Master",
+    "Fey Wanderer",
+    "Gloom Stalker",
+    "Hunter"
+  ],
+
+  // Rogue
+  "Rogue": [
+    "Arcane Trickster",
+    "Assassin",
+    "Soulknife",
+    "Thief"
+  ],
+
+  // Sorcerer
+  "Sorcerer": [
+    "Aberrant Sorcery",
+    "Clockwork Sorcery",
+    "Draconic Sorcery",
+    "Wild Magic Sorcery"
+  ],
+
+  // Warlock
+  "Warlock": [
+    "Archfey Patron",
+    "Celestial Patron",
+    "Fiend Patron",
+    "Great Old One Patron"
+  ],
+
+  // Wizard
+  "Wizard": [
+    "Abjurer",
+    "Diviner",
+    "Evoker",
+    "Illusionist"
+  ],
+
+  // Artificer
+  "Artificer": [
+    "Alchemist",
+    "Armorer",
+    "Artillerist",
+    "Battle Smith",
+    "Cartographer"
+  ]
+};
+
+// SECTION 4: OTHER ROLL TABLES. Add/remove a quoted line as required.
+const CHOICES = {
+  // Species
+  "Species": [
+    "Human",
+    "Elf",
+    "Dwarf",
+    "Halfling",
+    "Gnome",
+    "Dragonborn",
+    "Tiefling",
+    "Orc",
+    "Goliath",
+    "Aasimar"
+  ],
+
+  // Favourite Weapon
+  "Favourite Weapon": [
+    "Longsword",
+    "Greatsword",
+    "Dagger",
+    "Rapier",
+    "Warhammer",
+    "Battleaxe",
+    "Greataxe",
+    "Shortbow",
+    "Longbow",
+    "Crossbow",
+    "Spear",
+    "Quarterstaff",
+    "Mace",
+    "Flail",
+    "Whip",
+    "Trident",
+    "Sickle",
+    "Unarmed fists",
+    "Improvised chair",
+    "A very angry goose"
+  ],
+
+  // Armour
+  "Armour": [
+    "Leather",
+    "Chain mail",
+    "Plate",
+    "Studded leather",
+    "Hide",
+    "Furs",
+    "Scale mail",
+    "Half plate",
+    "Breastplate",
+    "None at all",
+    "Chainmail bikini",
+    "A strategically placed barrel"
+  ],
+
+  // Personality
+  "Personality": [
+    "Stubborn",
+    "Coward",
+    "Needs anger management",
+    "Group therapist",
+    "Chronic liar",
+    "Overly trusting",
+    "Compulsive gambler",
+    "Always hungry",
+    "Hopeless romantic",
+    "Suspicious of doors",
+    "Adopts every monster",
+    "Drama queen",
+    "Cannot whisper",
+    "Pathological optimist",
+    "Perpetually grumpy",
+    "Terrible flirt",
+    "Self-appointed leader",
+    "Collects spoons",
+    "Afraid of ducks",
+    "Insists they are the main character"
+  ],
+
+  // Body Shape
+  "Body Shape": [
+    "Lean",
+    "Skinny",
+    "Average",
+    "Beer belly",
+    "Curvy",
+    "Overweight",
+    "Obese",
+    "Chubby",
+    "Muscular",
+    "Muscles upon muscles",
+    "Bony"
+  ],
+
+  // Gender
+  "Gender": [
+    "Female",
+    "Male",
+    "Trans",
+    "Intersex",
+    "Non-binary",
+    "Whatever I want to be, you labelling bastards"
+  ],
+
+  // Sexuality
+  "Sexuality": [
+    "Gay",
+    "Straight",
+    "Bisexual",
+    "Lover of all",
+    "Asexual",
+    "Anything I want"
+  ],
+
+  // Background
+  "Background": [
+    "Acolyte",
+    "Artisan",
+    "Charlatan",
+    "Criminal",
+    "Entertainer",
+    "Farmer",
+    "Guard",
+    "Guide",
+    "Hermit",
+    "Merchant",
+    "Noble",
+    "Sage",
+    "Sailor",
+    "Scribe",
+    "Soldier",
+    "Wayfarer"
+  ]
+};
+
+// SECTION 5: DICE SETTINGS. Numbers only; edit the ranges here.
+const DICE_SETTINGS = {
+  abilityDice: 3,        // Number of six-sided dice per ability score
+  abilitySides: 6,       // Each die has this many sides
+  minHeightFeet: 2,
+  maxHeightFeet: 8,
+  inchesPerFoot: 12,    // 0–11 inches
+  adultMinInches: 1,
+  adultMaxInches: 13
+};
+
+// SECTION 6: OMEGAVERSE WEIGHTS. Must add to 100 for percentages.
+// Current split: 5% dominant Omega, 5% recessive Omega,
+//                60% Beta, 15% dominant Alpha, 15% recessive Alpha.
+const OMEGAVERSE = [
+  { name: "Dominant Omega", weight: 5 },
+  { name: "Recessive Omega", weight: 5 },
+  { name: "Beta", weight: 60 },
+  { name: "Dominant Alpha", weight: 15 },
+  { name: "Recessive Alpha", weight: 15 }
+];
+
+/* ════════════════════════════════════════════════════════════════════════
+      GENERATOR ENGINE — No edits needed below this line
+   ════════════════════════════════════════════════════════════════════════ */
+
+// Combine name groups automatically, so there's never a second list to update.
+const TABLES = {
+  'First Name': Object.values(FIRST_NAMES).flat(),
+  'Last Name': Object.values(LAST_NAMES).flat(),
+  Species: CHOICES.Species,
+  Class: Object.keys(SUBCLASSES),
+  Background: CHOICES.Background,
+  'Favourite Weapon': CHOICES['Favourite Weapon'],
+  Armour: CHOICES.Armour,
+  Personality: CHOICES.Personality,
+  'Body Shape': CHOICES['Body Shape'],
+  Gender: CHOICES.Gender,
+  Sexuality: CHOICES.Sexuality
+};
+
+const STATS = [
+  'Strength',
+  'Dexterity',
+  'Constitution',
+  'Intelligence',
+  'Wisdom',
+  'Charisma'
+];
+
+// Display order of the rows, including special dice-roll fields.
+const FIELDS = [
+  'First Name',
+  'Last Name',
+  'Species',
+  'Class',
+  'Subclass',
+  'Background',
+  ...STATS,
+  'Favourite Weapon',
+  'Armour',
+  'Personality',
+  'Height',
+  'Body Shape',
+  'Gender',
+  'Sexuality',
+  'Omegaverse',
+  'Schlong Size'
+];
+
+const state = {};
+const locks = new Set();
+let showAdult = false;
+let toastTimeout;
+
+const byId = id => document.getElementById(id);
+const randomInt = max => Math.floor(Math.random() * max); // 0 to max - 1
+const randomFrom = items => items[randomInt(items.length)];
+const die = sides => 1 + randomInt(sides);
+
+function rollAbilityScore() {
+  let total = 0;
+  for (let i = 0; i < DICE_SETTINGS.abilityDice; i++) {
+    total += die(DICE_SETTINGS.abilitySides);
+  }
+  return total; // Only the final number. No modifiers or individual dice.
+}
+
+function rollOmegaverse() {
+  const totalWeight = OMEGAVERSE.reduce((sum, option) => sum + option.weight, 0);
+  let number = randomInt(totalWeight);
+  for (const option of OMEGAVERSE) {
+    if (number < option.weight) return option.name;
+    number -= option.weight;
+  }
+  return OMEGAVERSE.at(-1).name;
+}
+
+function notify(message) {
+  const el = byId('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+function rollField(field) {
+  if (locks.has(field)) return;
+
+  if (field === 'Class') {
+    if (locks.has('Subclass')) {
+      // Do not allow a locked subclass to end up assigned to the wrong class.
+      return;
+    }
+    state.Class = randomFrom(TABLES.Class);
+    state.Subclass = randomFrom(SUBCLASSES[state.Class]);
+    displayField('Class');
+    displayField('Subclass');
+    return;
+  }
+
+  if (field === 'Subclass') {
+    state.Subclass = randomFrom(SUBCLASSES[state.Class]);
+  } else if (field === 'Height') {
+    const { minHeightFeet, maxHeightFeet, inchesPerFoot } = DICE_SETTINGS;
+    const feet = minHeightFeet + randomInt(maxHeightFeet - minHeightFeet + 1);
+    state.Height = `${feet} ft ${randomInt(inchesPerFoot)} in`;
+  } else if (field === 'Schlong Size') {
+    const { adultMinInches, adultMaxInches } = DICE_SETTINGS;
+    state[field] = `${adultMinInches + randomInt(adultMaxInches - adultMinInches + 1)} inches`;
+  } else if (field === 'Omegaverse') {
+    state[field] = rollOmegaverse();
+  } else if (STATS.includes(field)) {
+    state[field] = rollAbilityScore();
+  } else if (TABLES[field]) {
+    state[field] = randomFrom(TABLES[field]);
+  }
+
+  displayField(field);
+}
+
+function displayField(field) {
+  const holder = document.querySelector(`[data-value="${field}"]`);
+  if (!holder) return;
+  holder.replaceChildren();
+
+  const choices = field === 'Subclass'
+    ? SUBCLASSES[state.Class]
+    : TABLES[field];
+
+  if (choices) {
+    const select = document.createElement('select');
+    select.setAttribute('aria-label', `Choose ${field}`);
+    for (const option of choices) {
+      const element = document.createElement('option');
+      element.value = option;
+      element.textContent = option;
+      select.appendChild(element);
+    }
+    select.value = state[field];
+    select.addEventListener('change', () => {
+      if (field === 'Class') {
+        if (locks.has('Subclass')) {
+          select.value = state.Class;
+          notify('Unlock the subclass before changing class.');
+          return;
+        }
+        state.Class = select.value;
+        state.Subclass = randomFrom(SUBCLASSES[state.Class]);
+        displayField('Subclass');
+      } else {
+        state[field] = select.value;
+      }
+    });
+    holder.appendChild(select);
+  } else {
+    const value = document.createElement('span');
+    value.textContent = state[field] ?? '—';
+    holder.appendChild(value);
+  }
+
+  const lockButton = document.querySelector(`[data-lock="${field}"]`);
+  if (lockButton) {
+    const locked = locks.has(field);
+    lockButton.classList.toggle('locked', locked);
+    lockButton.textContent = locked ? '🔒' : '🔓';
+    lockButton.title = `${locked ? 'Unlock' : 'Lock'} ${field}`;
+    lockButton.setAttribute('aria-label', lockButton.title);
+  }
+}
+
+function rollEverything() {
+  for (const field of FIELDS) {
+    if (field === 'Subclass') {
+      // Class rolling already rolls its subclass. Roll separately only if
+      // the class is locked and the subclass is free to change.
+      if (locks.has('Class')) rollField('Subclass');
+      continue;
+    }
+    if (field === 'Schlong Size' && !showAdult) continue;
+    rollField(field);
+  }
+  notify('The dice have spoken!');
+}
+
+function createRow(field, container) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.dataset.row = field;
+
+  const label = document.createElement('div');
+  label.className = 'label';
+  label.textContent = field;
+
+  const value = document.createElement('div');
+  value.className = 'value';
+  value.dataset.value = field;
+
+  const reroll = document.createElement('button');
+  reroll.type = 'button';
+  reroll.className = 'icon-btn';
+  reroll.textContent = '↻';
+  reroll.title = `Reroll ${field}`;
+  reroll.setAttribute('aria-label', reroll.title);
+  reroll.addEventListener('click', () => rollField(field));
+
+  const lock = document.createElement('button');
+  lock.type = 'button';
+  lock.className = 'icon-btn';
+  lock.dataset.lock = field;
+  lock.title = `Lock ${field}`;
+  lock.setAttribute('aria-label', lock.title);
+  lock.addEventListener('click', () => {
+    if (locks.has(field)) locks.delete(field);
+    else locks.add(field);
+    displayField(field);
+  });
+
+  row.append(label, value, reroll, lock);
+  container.appendChild(row);
+}
+
+function fieldsForExport() {
+  return FIELDS.filter(field => showAdult || field !== 'Schlong Size');
+}
+
+function characterText() {
+  return fieldsForExport()
+    .map(field => `${field}: ${state[field] ?? '—'}`)
+    .join('\n');
+}
+
+async function copyCharacter() {
+  const text = characterText();
+  try {
+    await navigator.clipboard.writeText(text);
+    notify('Character copied!');
+  } catch (error) {
+    // Fallback for local file:/// pages and browsers without Clipboard API.
+    const box = document.createElement('textarea');
+    box.value = text;
+    document.body.appendChild(box);
+    box.select();
+    const worked = document.execCommand('copy');
+    box.remove();
+    notify(worked ? 'Character copied!' : 'Copy is unavailable in this browser.');
+  }
+}
+
+function saveJSON() {
+  const character = Object.fromEntries(
+    fieldsForExport().map(field => [field, state[field]])
+  );
+  const blob = new Blob([JSON.stringify(character, null, 2)], {
+    type: 'application/json'
+  });
+  const anchor = document.createElement('a');
+  anchor.href = URL.createObjectURL(blob);
+  anchor.download = 'roll-for-regret-character.json';
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(anchor.href), 1000);
+}
+
+function start() {
+  const container = byId('generator');
+  FIELDS.forEach(field => createRow(field, container));
+
+  byId('rollAll').addEventListener('click', rollEverything);
+  byId('copy').addEventListener('click', copyCharacter);
+  byId('download').addEventListener('click', saveJSON);
+  byId('print').addEventListener('click', () => window.print());
+  byId('adultToggle').addEventListener('change', event => {
+    showAdult = event.target.checked;
+    document.querySelector('[data-row="Schlong Size"]')
+      .classList.toggle('hidden', !showAdult);
+    if (showAdult && state['Schlong Size'] === undefined) {
+      rollField('Schlong Size');
+    }
+  });
+  document.querySelector('[data-row="Schlong Size"]').classList.add('hidden');
+  rollEverything();
+}
+
+document.addEventListener('DOMContentLoaded', start);
+  </script>
 </body>
 </html>
