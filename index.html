@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A delightfully chaotic, fully offline D&D character concept generator with 3d6 ability scores and rerollable details.">
+  <title>Roll for Regret | The Kobold Guild</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="container">
+  <div class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">⚄</span> The Kobold Guild <span style="color:#849285">/ Character Lab</span></div>
+    <div class="top-note">A character concept generator • Runs offline</div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">The highly questionable character creator</div>
+    <h1>Roll for Regret.</h1>
+    <p>Brave heroes. Absolute disasters. A suspicious number of people called Dave. Roll an entire D&amp;D character concept, or keep just the bits that made you laugh.</p>
+    <div class="hero-bottom">
+      <div class="pillars"><span>100 first names</span><span>100 surnames</span><span>3d6 ability scores</span></div>
+      <div class="action-bar"><button class="btn btn-primary" id="roll-all" type="button">✦ Roll a new character</button></div>
+    </div>
+  </header>
+
+  <section class="summary" aria-live="polite">
+    <div>
+      <div class="summary-label">Your latest questionable adventurer</div>
+      <h2 id="summary-name">Rolling...</h2>
+      <p id="summary-description">The dice have opinions.</p>
+    </div>
+    <div class="summary-symbol" aria-hidden="true">⚔</div>
+  </section>
+
+  <div class="layout">
+    <div class="stack">
+      <section class="panel" aria-labelledby="stats-title">
+        <div class="section-top">
+          <div><h2 id="stats-title">Ability scores</h2><p>Roll three six-sided dice and add them. No mercy, no rerolling the lowest.</p></div>
+          <button class="btn btn-subtle" id="roll-stats" type="button" title="Reroll all six ability scores">↻ All six</button>
+        </div>
+        <div class="stat-grid" id="stat-grid">
+          <!-- Filled by JavaScript -->
+        </div>
+        <div class="mini-key">Scores range from 3–18. Modifiers use the standard D&amp;D formula: floor((score − 10) ÷ 2).</div>
+      </section>
+
+      <section class="panel" aria-labelledby="identity-title">
+        <div class="section-top"><div><h2 id="identity-title">Who is this menace?</h2><p>Names can be typed over. Other options can be chosen manually.</p></div></div>
+        <div class="field-grid">
+          <div class="field"><div class="field-head"><label class="field-label" for="v-firstName">First name</label><button class="roll-field" data-roll="firstName" title="Reroll first name" aria-label="Reroll first name">↻</button></div><input class="field-input" id="v-firstName" maxlength="60" autocomplete="off"></div>
+          <div class="field"><div class="field-head"><label class="field-label" for="v-lastName">Surname</label><button class="roll-field" data-roll="lastName" title="Reroll surname" aria-label="Reroll surname">↻</button></div><input class="field-input" id="v-lastName" maxlength="60" autocomplete="off"></div>
+          <div class="field"><div class="field-head"><label class="field-label" for="v-species">Species</label><button class="roll-field" data-roll="species" aria-label="Reroll species" title="Reroll species">↻</button></div><select class="field-select" id="v-species"></select></div>
+          <div class="field"><div class="field-head"><span class="field-label">Height</span><button class="roll-field" data-roll="height" aria-label="Reroll height" title="Reroll height">↻</button></div><div class="field-value" id="v-height">–</div></div>
+          <div class="field"><div class="field-head"><label class="field-label" for="v-body">Body shape</label><button class="roll-field" data-roll="body" aria-label="Reroll body shape" title="Reroll body shape">↻</button></div><select class="field-select" id="v-body"></select></div>
+          <div class="field"><div class="field-head"><label class="field-label" for="v-gender">Gender</label><button class="roll-field" data-roll="gender" aria-label="Reroll gender" title="Reroll gender">↻</button></div><select class="field-select" id="v-gender"></select></div>
+          <div class="field wide"><div class="field-head"><label class="field-label" for="v-sexuality">Sexuality</label><button class="roll-field" data-roll="sexuality" aria-label="Reroll sexuality" title="Reroll sexuality">↻</button></div><select class="field-select" id="v-sexuality"></select></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="panel" aria-labelledby="adventure-title">
+        <div class="section-top"><div><h2 id="adventure-title">The adventuring bit</h2><p>Qualifications optional. Terrible decisions guaranteed. Subclass rolls always match the class.</p></div></div>
+        <div class="field-grid">
+          <div class="field"><div class="field-head"><label class="field-label" for="v-className">Class</label><button class="roll-field" data-roll="className" title="Reroll class" aria-label="Reroll class">↻</button></div><select class="field-select" id="v-className"></select></div>
+          <div class="field"><div class="field-head"><label class="field-label" for="v-subclass">Subclass</label><button class="roll-field" data-roll="subclass" title="Reroll subclass only" aria-label="Reroll subclass only">↻</button></div><select class="field-select" id="v-subclass"></select></div>
+          <p class="subclass-source" id="subclass-source" aria-live="polite">2024 class options, including the updated Artificer.</p>
+          <div class="field"><div class="field-head"><label class="field-label" for="v-background">Background</label><button class="roll-field" data-roll="background" title="Reroll background" aria-label="Reroll background">↻</button></div><select class="field-select" id="v-background"></select></div>
+          <div class="field"><div class="field-head"><label class="field-label" for="v-weapon">Favourite weapon</label><button class="roll-field" data-roll="weapon" title="Reroll weapon" aria-label="Reroll weapon">↻</button></div><select class="field-select" id="v-weapon"></select></div>
+          <div class="field"><div class="field-head"><label class="field-label" for="v-armour">Armour</label><button class="roll-field" data-roll="armour" title="Reroll armour" aria-label="Reroll armour">↻</button></div><select class="field-select" id="v-armour"></select></div>
+          <div class="field wide"><div class="field-head"><label class="field-label" for="v-personality">Personality trait</label><button class="roll-field" data-roll="personality" title="Reroll personality trait" aria-label="Reroll personality trait">↻</button></div><select class="field-select" id="v-personality"></select></div>
+          <div class="field wide"><div class="field-head"><label class="field-label" for="v-motivation">Reason for adventuring</label><button class="roll-field" data-roll="motivation" title="Reroll adventuring motive" aria-label="Reroll adventuring motive">↻</button></div><select class="field-select" id="v-motivation"></select></div>
+        </div>
+      </section>
+
+      <section class="panel omega-panel" aria-labelledby="omega-title">
+        <div class="section-top"><div><h2 id="omega-title">Omegaverse (optional lore)</h2><p>A separate 1–100 weighted roll, not tied to gender or sexuality.</p></div><button class="roll-field" data-roll="designation" title="Reroll designation" aria-label="Reroll Omegaverse designation">↻</button></div>
+        <div class="omega-roll" id="v-designation" aria-live="polite">–</div>
+        <div class="small-note" id="designation-detail">Rolled on d100</div>
+        <div class="odds" role="img" aria-label="30 percent Alpha, 60 percent Beta, 10 percent Omega"><span></span><span></span><span></span></div>
+        <div class="odds-legend"><span>Alpha 30%</span><span>Beta 60%</span><span>Omega 10%</span></div>
+        <p class="mini-key">Alpha: 15% dominant, 15% recessive. Omega: 5% dominant, 5% recessive. Beta: 60%.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="extras-title">
+        <div class="section-top"><div><h2 id="extras-title">Mature nonsense</h2><p>Optional 18+ anatomy humour. Hidden from the page and exports unless enabled.</p></div></div>
+        <label class="toggle"><input type="checkbox" id="mature-toggle"><span>Enable the NSFW roll</span></label>
+        <div class="mature" id="mature-area" hidden>
+          <div class="field-head"><span class="field-label">Schlong size • 1–13 inches</span><button class="roll-field" data-roll="schlong" title="Reroll anatomy" aria-label="Reroll anatomy">↻</button></div>
+          <div class="field-value" id="v-schlong">–</div>
+          <p class="mini-key" style="margin:5px 0 0">A completely independent novelty roll, regardless of gender or species.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="foot-actions">
+    <div class="action-bar">
+      <button class="btn btn-primary" id="roll-bottom" type="button">↻ Reroll everything</button>
+      <button class="btn btn-outline" id="copy-character" type="button">⧉ Copy character</button>
+      <button class="btn btn-outline" id="save-json" type="button">↓ Save JSON</button>
+      <button class="btn btn-outline" id="print-character" type="button">▤ Print</button>
+    </div>
+    <div class="foot-note">A character concept generator, not a full 5e rules-legal character sheet. Stats are straight 3d6; class and subclass are linked, while species and equipment are rolled independently. Subclass names: <a href="https://www.dndbeyond.com/posts/1810-updates-in-the-players-handbook-2024" target="_blank" rel="noopener noreferrer">2024 Player's Handbook</a> and <a href="https://www.dndbeyond.com/posts/2106-whats-new-with-the-artificer-in-eberron-forge-of" target="_blank" rel="noopener noreferrer">revised Artificer (2025)</a>.</div>
+  </div>
+  <div class="footer">Made for questionable heroes and memorable NPCs. The Kobold Guild ✦ All dice, no dignity.</div>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="js/script.js" defer></script>
+</body>
+</html>
