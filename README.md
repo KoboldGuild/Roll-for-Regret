@@ -3,14 +3,6 @@
 A completely static, browser-based D&D character concept generator, ready to host using **GitHub Pages**. No backend, packages, API keys, Node.js installation or build process required.
 
 
-## Files
-
-- `index.html` — the page and character-creator controls.
-- `css/style.css` — all layout, colours, responsive and print styles.
-- `js/script.js` — roll tables, dice rolling, rendering and exporting.
-- `.nojekyll` — disables the Jekyll processing step on GitHub Pages.
-- `README.md` — these publishing instructions.
-
 ## Character creator features
 
 100 first names; 100 surnames; individually rerollable 3d6 Strength, Dexterity, Constitution, Intelligence, Wisdom and Charisma; species; class and class-matched subclass; background; weapons; armour; personality; motivation; 2–8 ft height, with 0–11 additional inches; body type; gender; sexuality; a weighted Omegaverse roll (10% Omega, 60% Beta, 30% Alpha); and an optional 18+ anatomy roll. Includes editable fields, full reroll, clipboard copy, JSON download and printing.
