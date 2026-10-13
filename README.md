@@ -5,7 +5,19 @@ A completely static, browser-based D&D character concept generator, ready to hos
 
 ## Character creator features
 
-100 first names; 100 surnames; individually rerollable 3d6 Strength, Dexterity, Constitution, Intelligence, Wisdom and Charisma; species; class and class-matched subclass; background; weapons; armour; personality; motivation; 2–8 ft height, with 0–11 additional inches; body type; gender; sexuality; a weighted Omegaverse roll (10% Omega, 60% Beta, 30% Alpha); and an optional 18+ anatomy roll. Includes editable fields, full reroll, clipboard copy, JSON download and printing.
+- 100 first names & 100 surnames
+- Stats: individually rerollable 3d6 Strength, Dexterity, Constitution, Intelligence, Wisdom and Charisma
+- species
+- class and class-matched subclass
+- background
+- weapons
+- armour
+- personality
+- motivation
+- 2–8 ft height, with 0–11 additional inches
+- body type
+- gender & sexuality
+- Additional tables for: Omegaverse roll (10% Omega, 60% Beta, 30% Alpha); and an optional 18+ anatomy roll. Includes editable fields, full reroll, clipboard copy, JSON download and printing.
 
 ## Classes & subclasses (2024 rules)
 
